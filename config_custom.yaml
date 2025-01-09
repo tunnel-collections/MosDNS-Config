@@ -1,6 +1,5 @@
 log:
   level: debug
-  file: "logs/mosdns.log"
 
 api:
   http: "0.0.0.0:8338" # api 监听地址
@@ -36,13 +35,13 @@ plugins:
       secondary: nextdns # 备用dns
       threshold: 700 # 无响应切换 毫秒
       always_standby: true # 副可执行插件始终待命
-  
+
   # dns-cn 序列
   - tag: dns_cn
     type: "fallback"
     args:
-      primary: ali # 主dns
-      secondary: dnspod # 备用dns
+      primary: cnnic # 主dns
+      secondary: shanghai_dx # 备用dns
       threshold: 500
       always_standby: true # 副可执行插件始终待命
 
@@ -85,6 +84,15 @@ plugins:
       - matches: "!resp_ip $geoip_cn" # 响应非 cn ip
         exec: drop_resp # 丢弃
 
+  # 专门给代理服务器域名使用的
+  - tag: query_proxy_server
+    type: fallback
+    args:
+      primary: cloudflare
+      secondary: google
+      threshold: 700
+      always_standby: true
+
   # query nocn 域名
   - tag: query_nocn
     type: sequence
@@ -98,7 +106,7 @@ plugins:
   - tag: query_gfw
     type: sequence
     args:
-      - exec: $forward_remote
+      - exec: $forward_clash
 
   # query fallback
   - tag: query_fallback
@@ -119,10 +127,10 @@ plugins:
       - exec: $local_seq
 
   # 其他所有情况
-  - tag: query_other 
+  - tag: query_other
     type: sequence
     args:
-      # - exec: $no_ecs 
+      # - exec: $no_ecs
       - exec: $other_seq
 
   - tag: pre_handle
@@ -137,7 +145,7 @@ plugins:
       - exec: $ttl_5m # ttl 5min
       - exec: accept # 接受响应,终止流程
 
-  # pre_sequence 结果处理 
+  # pre_sequence 结果处理
   - tag: has_resp_pre
     type: sequence
     args:
@@ -175,6 +183,11 @@ plugins:
         exec: $reject_ad
       - exec: $cache_wan # cache wan
       - exec: jump has_resp_main
+      # ===================================================
+      - matches: qname $proxy-server # proxy-server 域名，用 8.8.8.8 这样的 server 来解析
+        exec: $query_proxy_server
+      - exec: jump has_resp_main
+      # ===================================================
       - matches: qname $geosite_cn # cn 域名
         exec: $query_cn
       - exec: jump has_resp_main
@@ -201,8 +214,10 @@ plugins:
   - type: udp_server
     args:
       entry: sequence
-      listen: :5333
+        #listen: :5333
+      listen: :1153
   - type: tcp_server
     args:
       entry: sequence
-      listen: :5333
+        #listen: :5333
+      listen: :1153

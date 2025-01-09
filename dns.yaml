@@ -7,14 +7,6 @@ plugins:
       concurrent: 3
       upstreams:
         - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::6464"
-        - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::0064"
-        - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::8844"
-        - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::8888"
-        - addr: "https://dns.google/dns-query"
           dial_addr: "8.8.4.4"
         - addr: "https://dns.google/dns-query"
           dial_addr: "8.8.8.8"
@@ -23,20 +15,11 @@ plugins:
           dial_addr: "8.8.4.4"
           enable_pipeline: true # TCP/DoT 启用 RFC 7766 新的 query pipelining 连接复用模式
         - addr: "tls://dns.google"
-          dial_addr: "2001:4860:4860::8888"
-          enable_pipeline: true
-        - addr: "tls://dns.google"
           dial_addr: "8.8.8.8"
           enable_pipeline: true
         # h3
         - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::8844"
-          enable_http3: true
-        - addr: "https://dns.google/dns-query"
           dial_addr: "8.8.4.4"
-          enable_http3: true
-        - addr: "https://dns.google/dns-query"
-          dial_addr: "2001:4860:4860::8888"
           enable_http3: true
         - addr: "https://dns.google/dns-query"
           dial_addr: "8.8.8.8"
@@ -50,14 +33,10 @@ plugins:
       upstreams:
         - addr: "https://1.1.1.1/dns-query"
           dial_addr: "1.1.1.1"
-
-
         - addr: "tls://1.1.1.1"
           dial_addr: "1.1.1.1"
           enable_pipeline: true # TCP/DoT 启用 RFC 7766 新的 query pipelining 连接复用模式
-        - addr: "tls://1.1.1.1"
-          dial_addr: "1.1.1.1"
-          enable_pipeline: true
+        - addr: "tcp://1.1.1.1"
 
   - tag: nextdns
     type: forward
@@ -67,10 +46,6 @@ plugins:
         - addr: "https://dns.nextdns.io"
           dial_addr: "45.90.28.186"
           enable_http3: true
-        - addr: "https://dns.nextdns.io"
-          dial_addr: "2a07:a8c0::ae:d5cb"
-          enable_http3: true
-
         - addr: "tls://dns.nextdns.io"
           enable_pipeline: true
           dial_addr: "45.90.28.186"
@@ -82,9 +57,6 @@ plugins:
       upstreams:
         - addr: "https://dns11.quad9.net/dns-query"
           dial_addr: "9.9.9.11"
-        - addr: "https://dns11.quad9.net/dns-query"
-          dial_addr: "2620:fe::11"
-
         - addr: "tls://dns11.quad9.net"
           dial_addr: "9.9.9.11"
           enable_pipeline: true
@@ -92,12 +64,13 @@ plugins:
           dial_addr: "2620:fe::11"
           enable_pipeline: true
 
-  - tag: forward_remote
+  - tag: forward_clash
     type: forward
     args:
       concurrent: 1
       upstreams:
-        - addr: 192.168.82.1:1153 
+        - addr: 127.0.0.1:1053
+
   # ali doh dot h3
   - tag: ali
     type: forward
@@ -108,17 +81,11 @@ plugins:
           dial_addr: "223.6.6.6"
 
         - addr: "tls://dns.alidns.com"
-          dial_addr: "2400:3200:baba::1"
-          enable_pipeline: true
-        - addr: "tls://dns.alidns.com"
           dial_addr: "223.5.5.5"
           enable_pipeline: true
 
         - addr: "https://dns.alidns.com/dns-query"
           dial_addr: "223.5.5.5"
-          enable_http3: true
-        - addr: "https://dns.alidns.com/dns-query"
-          dial_addr: "2400:3200::1"
           enable_http3: true
 
   # dnspod doh dot
@@ -138,6 +105,23 @@ plugins:
         - addr: "tls://dot.pub"
           dial_addr: "120.53.53.53"
           enable_pipeline: true
+
+  - tag: cnnic
+    type: forward
+    args:
+      concurrent: 3
+      upstreams:
+        - addr: "udp://1.2.4.8"
+        - addr: "udp://210.2.4.8"
+
+  - tag: shanghai_dx
+    type: forward
+    args:
+      concurrent: 3
+      upstreams:
+        - addr: "udp://202.96.209.133"
+        - addr: "udp://116.228.111.118"
+        - addr: "udp://202.96.209.5"
 
   # local dns
   - tag: local

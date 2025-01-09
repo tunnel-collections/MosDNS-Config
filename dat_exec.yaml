@@ -10,6 +10,7 @@ plugins:
     args:
       files:
         - "rules/geoip_cn.txt"
+        - "rules/proxy.ip.txt"  # 代理服务器的ip 需要直连
 
   - tag: geosite_cn # cn 域名
     type: domain_set
@@ -17,6 +18,7 @@ plugins:
       files:
         - "rules/geosite_cn.txt"
         - "rules/whitelist.txt"
+        - "rules/proxy.server.txt" # 代理服务器的域名需要本地解析
   - tag: geosite_gfw # gfw 域名
     type: domain_set
     args:
@@ -33,6 +35,12 @@ plugins:
     args:
       files:
         - "rules/ad-domains.txt"
+
+  - tag: proxy-server # 代理服务器
+    type: domain_set
+    args:
+      files:
+        - "rules/proxy.server.txt"
 
   ################# 可执行插件 ################
 
@@ -69,8 +77,8 @@ plugins:
       preset: "" # 发送预设 ecs
       send: false # 是否发送 ecs
       mask4: 24
-      mask6: 48 
-  
+      mask6: 48
+
   # 附加 ecs cn 信息
   - tag: ecs_cn
     type: "ecs_handler"
